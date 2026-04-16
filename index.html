@@ -1,0 +1,1641 @@
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: #0a0a1a;
+  }
+
+  .wrap {
+    background: linear-gradient(135deg, #0a0a1a 0%, #0d0d2b 50%, #0a0a1a 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+    color: #fff;
+  }
+
+  .header {
+    background: linear-gradient(90deg, #1a0030, #0d0060, #1a0030);
+    border-bottom: 2px solid #6600ff;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 300%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 0, 255, 0.1), transparent);
+    animation: shimmer 3s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      left: -100%
+    }
+
+    100% {
+      left: 100%
+    }
+  }
+
+  .header-title {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: #fff;
+    text-shadow: 0 0 20px #6600ff, 0 0 40px #6600ff;
+  }
+
+  .header-sub {
+    font-size: 13px;
+    letter-spacing: 6px;
+    color: #aa88ff;
+    margin-top: 4px;
+  }
+
+  .dice-row {
+    font-size: 28px;
+    margin: 6px 0 0;
+    letter-spacing: 8px;
+  }
+
+  .badge-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .badge-red {
+    background: #ff003310;
+    border: 1px solid #ff0033;
+    color: #ff6688;
+  }
+
+  .badge-green {
+    background: #00ff4410;
+    border: 1px solid #00ff44;
+    color: #44ff88;
+  }
+
+  .badge-gold {
+    background: #ffaa0010;
+    border: 1px solid #ffaa00;
+    color: #ffcc44;
+  }
+
+  /* FIX 1: Slowed ticker from 25s to 60s */
+  .ticker-wrap {
+    width: 100%;
+    overflow: hidden;
+    background: rgba(102, 0, 255, 0.05);
+    border-bottom: 1px solid rgba(102, 0, 255, 0.2);
+    height: 34px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+  }
+
+  .ticker-content {
+    white-space: nowrap;
+    display: inline-block;
+    animation: marquee 60s linear infinite;
+    padding-left: 100%;
+    color: #ccbbff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .ticker-item {
+    display: inline-block;
+    padding-right: 50px;
+  }
+
+  .ticker-item span {
+    color: #ffaa00;
+    margin-right: 5px;
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translate(0, 0)
+    }
+
+    100% {
+      transform: translate(-100%, 0)
+    }
+  }
+
+  .ticker-wrap::before,
+  .ticker-wrap::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 50px;
+    height: 100%;
+    z-index: 2;
+  }
+
+  .ticker-wrap::before {
+    left: 0;
+    background: linear-gradient(90deg, #0a0a1a, transparent);
+  }
+
+  .ticker-wrap::after {
+    right: 0;
+    background: linear-gradient(270deg, #0a0a1a, transparent);
+  }
+
+  .nav {
+    display: flex;
+    background: #0d0d25;
+    border-bottom: 1px solid #2a2a5a;
+  }
+
+  .nav-btn {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    color: #6666aa;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .nav-btn.active {
+    color: #aa88ff;
+    border-bottom-color: #6600ff;
+    background: #1a1a40;
+  }
+
+  .nav-btn:hover {
+    color: #aa88ff;
+    background: #151530;
+  }
+
+  .section {
+    display: none;
+    padding: 16px;
+  }
+
+  .section.active {
+    display: block;
+    animation: slideIn 0.4s ease forwards;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(16px)
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0)
+    }
+  }
+
+  .round-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 0 10px;
+  }
+
+  .round-title {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #aa88ff;
+  }
+
+  .round-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, #6600ff, transparent);
+  }
+
+  .slot-label {
+    font-size: 11px;
+    color: #7777aa;
+    letter-spacing: 1px;
+    margin: 8px 0 6px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .slot-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #2a2a4a;
+  }
+
+  .matches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .match-card {
+    background: #0d0d25;
+    border: 1px solid #2a2a5a;
+    border-radius: 10px;
+    padding: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .match-card:hover {
+    transform: translateY(-3px);
+    border-color: #6600ff;
+    box-shadow: 0 8px 25px rgba(102, 0, 255, 0.15);
+  }
+
+  .match-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #6600ff, #aa00ff);
+  }
+
+  .match-num {
+    font-size: 10px;
+    color: #5555aa;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .players-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .player-chip {
+    background: #1a1a3a;
+    border: 1px solid #3a3a6a;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 11px;
+    color: #ccccff;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+
+  .player-chip:hover {
+    background: #2a2a5a;
+    border-color: #6600ff;
+  }
+
+  .player-chip::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .p1::before {
+    background: #ff3366;
+  }
+
+  .p2::before {
+    background: #3388ff;
+  }
+
+  .p3::before {
+    background: #33ff88;
+  }
+
+  .p4::before {
+    background: #ffaa33;
+  }
+
+  /* FIX 2: Result button hidden by default, shown only when admin class on body */
+  .result-btn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px 4px;
+  }
+
+  body.is-admin .result-btn {
+    display: inline-block;
+  }
+
+  .leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background: #0d0d25;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #2a2a5a;
+  }
+
+  .leaderboard-table th {
+    background: #1a1a40;
+    color: #aa88ff;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 12px 8px;
+    text-align: left;
+  }
+
+  .leaderboard-table td {
+    padding: 12px 8px;
+    font-size: 13px;
+    color: #ccccff;
+    border-bottom: 1px solid #1a1a40;
+  }
+
+  .leaderboard-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .leaderboard-table tr:hover {
+    background: #151535;
+  }
+
+  .rank-badge {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    background: #2a2a4a;
+  }
+
+  .rank-1 {
+    background: #ffaa00;
+    color: #000;
+    box-shadow: 0 0 12px #ffaa0077;
+    animation: rankPulse 2s infinite;
+  }
+
+  .rank-2 {
+    background: #c0c0c0;
+    color: #000;
+  }
+
+  .rank-3 {
+    background: #cd7f32;
+    color: #000;
+  }
+
+  @keyframes rankPulse {
+
+    0%,
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 12px #ffaa0077
+    }
+
+    50% {
+      transform: scale(1.1);
+      box-shadow: 0 0 22px #ffaa00aa
+    }
+  }
+
+  .points-val {
+    font-weight: 800;
+    color: #00ff88;
+  }
+
+  .qualify-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 4px;
+  }
+
+  .q-yes {
+    background: #00ff4420;
+    border: 1px solid #00ff44;
+    color: #44ff88;
+  }
+
+  .q-no {
+    background: #ff333320;
+    border: 1px solid #ff3333;
+    color: #ff6666;
+  }
+
+  .rule-card {
+    background: linear-gradient(135deg, #1a0a3010, #0a0a20);
+    border: 1px dashed #6600ff55;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .rule-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 12px;
+  }
+
+  .rule-pos {
+    color: #aa88ff;
+    font-weight: 600;
+  }
+
+  .rule-pts {
+    color: #00ff88;
+    font-weight: 800;
+  }
+
+  .qualify-info {
+    background: #0d1a0d;
+    border: 1px solid #00aa44;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+
+  .qualify-title {
+    font-size: 12px;
+    color: #00ff88;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .qualify-text {
+    font-size: 12px;
+    color: #88ccaa;
+    line-height: 1.6;
+  }
+
+  .ko-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #ffaa00;
+    letter-spacing: 2px;
+    margin: 20px 0 12px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .ko-title::before,
+  .ko-title::after {
+    content: '';
+    flex: 1;
+    max-width: 60px;
+    height: 1px;
+  }
+
+  .ko-title::before {
+    background: linear-gradient(90deg, transparent, #ffaa00);
+  }
+
+  .ko-title::after {
+    background: linear-gradient(90deg, #ffaa00, transparent);
+  }
+
+  .qf-grid,
+  .sf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .final-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    max-width: 300px;
+    margin: 0 auto 12px;
+  }
+
+  .bracket-match {
+    background: #0d0d25;
+    border: 1px solid #2a2a5a;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .bracket-player {
+    padding: 7px 10px;
+    font-size: 11px;
+    color: #ccccff;
+    border-bottom: 1px solid #1a1a40;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .bracket-player:last-child {
+    border-bottom: none;
+  }
+
+  .bracket-player .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .bracket-player.winner-slot {
+    color: #ffdd66;
+  }
+
+  .bracket-player.tbd {
+    color: #4a4a7a;
+    font-style: italic;
+  }
+
+  .trophy-row {
+    text-align: center;
+    padding: 20px;
+  }
+
+  .trophy-icon {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .trophy-text {
+    font-size: 13px;
+    color: #ffaa44;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+
+  /* Admin controls - only shown when logged in */
+  .admin-score-row {
+    display: none;
+  }
+
+  body.is-admin .admin-score-row {
+    display: table-row;
+  }
+
+  .score-ctrl {
+    background: #2a2a6a;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 11px;
+    padding: 3px 7px;
+    cursor: pointer;
+  }
+
+  .score-ctrl:hover {
+    background: #6600ff;
+  }
+
+  .admin-login-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: #0d0d25;
+    border: 1px solid #2a2a5a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    opacity: 0.4;
+    transition: 0.3s;
+    font-size: 18px;
+  }
+
+  .admin-login-btn:hover {
+    opacity: 1;
+    border-color: #6600ff;
+  }
+
+  body.is-admin .admin-login-btn {
+    opacity: 1;
+    border-color: #6600ff;
+    background: #1a0050;
+    box-shadow: 0 0 12px #6600ff55;
+  }
+
+  .admin-session-banner {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background: linear-gradient(90deg, #1a0040, #2a0080, #1a0040);
+    border-bottom: 1px solid #6600ff;
+    padding: 4px 12px;
+    font-size: 10px;
+    color: #aa88ff;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-align: center;
+  }
+
+  body.is-admin .admin-session-banner {
+    display: block;
+  }
+
+  body.is-admin .wrap {
+    padding-top: 24px;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-content {
+    background: #0d0d25;
+    border: 2px solid #6600ff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 360px;
+    padding: 25px;
+    box-shadow: 0 0 30px #6600ff33;
+  }
+
+  .modal-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 20px;
+    text-align: center;
+    letter-spacing: 2px;
+  }
+
+  .admin-input {
+    width: 100%;
+    background: #1a1a3a;
+    border: 1px solid #3a3a6a;
+    border-radius: 8px;
+    padding: 12px;
+    color: #fff;
+    margin-bottom: 15px;
+    outline: none;
+    font-size: 14px;
+  }
+
+  .admin-input:focus {
+    border-color: #6600ff;
+  }
+
+  .admin-submit {
+    width: 100%;
+    background: #6600ff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 13px;
+  }
+
+  .admin-submit:hover {
+    background: #7722ff;
+  }
+
+  .admin-bar {
+    display: none;
+    background: #1a1a40;
+    border: 1px solid #6600ff;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  body.is-admin .admin-bar {
+    display: flex;
+  }
+
+  .admin-logout {
+    background: none;
+    border: 1px solid #ff3366;
+    color: #ff6688;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .sync-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #555;
+    display: inline-block;
+    margin-right: 5px;
+  }
+
+  .sync-online {
+    background: #00ff88;
+    box-shadow: 0 0 6px #00ff88;
+  }
+
+  .sync-saving {
+    background: #ffaa00;
+    animation: blink 0.8s infinite;
+  }
+
+  .sync-err {
+    background: #ff3366;
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0.3
+    }
+  }
+
+  .poster-wrap {
+    background: linear-gradient(135deg, #050510, #0d0030, #050510);
+    border: 2px solid #6600ff;
+    border-radius: 16px;
+    padding: 30px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .poster-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(102, 0, 255, 0.15) 0%, transparent 70%);
+  }
+
+  .poster-glow {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 80px;
+    background: #6600ff;
+    filter: blur(40px);
+    opacity: 0.3;
+  }
+
+  .poster-dice {
+    font-size: 50px;
+    margin-bottom: 10px;
+    display: block;
+    position: relative;
+  }
+
+  .poster-main-title {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: #fff;
+    line-height: 1.1;
+    position: relative;
+  }
+
+  .poster-main-title span {
+    color: #aa88ff;
+  }
+
+  .poster-tagline {
+    font-size: 13px;
+    color: #6666aa;
+    letter-spacing: 4px;
+    margin: 6px 0 20px;
+  }
+
+  .poster-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .stat-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid #2a2a5a;
+    border-radius: 10px;
+    padding: 12px;
+  }
+
+  .stat-val {
+    font-size: 22px;
+    font-weight: 900;
+    color: #aa88ff;
+  }
+
+  .stat-lbl {
+    font-size: 10px;
+    color: #6666aa;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  .poster-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #6600ff, transparent);
+    margin: 16px 0;
+    position: relative;
+  }
+
+  .poster-lines {
+    font-size: 13px;
+    color: #ccccff;
+    line-height: 2;
+    position: relative;
+  }
+
+  .poster-footer {
+    margin-top: 20px;
+    padding: 12px;
+    background: rgba(255, 0, 50, 0.08);
+    border: 1px solid #ff0033;
+    border-radius: 8px;
+    position: relative;
+  }
+
+  .poster-footer-text {
+    font-size: 12px;
+    color: #ff6688;
+    font-weight: 800;
+    letter-spacing: 2px;
+  }
+
+  .poster-footer-sub {
+    font-size: 10px;
+    color: #ff335555;
+    margin-top: 2px;
+    letter-spacing: 1px;
+  }
+
+  .crown-row {
+    font-size: 20px;
+    letter-spacing: 6px;
+    margin-top: 16px;
+    position: relative;
+  }
+
+  /* Match result modal */
+  .result-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .result-modal-box {
+    background: #0d0d25;
+    border: 2px solid #aa00ff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 340px;
+    padding: 24px;
+  }
+
+  .result-modal-title {
+    font-size: 15px;
+    font-weight: 900;
+    color: #aa88ff;
+    margin-bottom: 16px;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  .result-place-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .result-place-lbl {
+    font-size: 11px;
+    color: #7777aa;
+    width: 36px;
+  }
+
+  .result-select {
+    flex: 1;
+    background: #1a1a3a;
+    border: 1px solid #3a3a6a;
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: #fff;
+    outline: none;
+    font-size: 12px;
+  }
+
+  .result-select:focus {
+    border-color: #6600ff;
+  }
+
+  .result-save-btn {
+    width: 100%;
+    background: #6600ff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 14px;
+    letter-spacing: 1px;
+    font-size: 13px;
+  }
+
+  .result-cancel-btn {
+    width: 100%;
+    background: #1a1a3a;
+    color: #aaaacc;
+    border: none;
+    border-radius: 8px;
+    padding: 9px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    font-size: 12px;
+  }
+</style>
+
+<div class="admin-session-banner">🔐 ADMIN SESSION ACTIVE — SESSION WILL CLEAR ON CLOSE/REFRESH</div>
+<div class="wrap">
+  <div class="header">
+    <div class="dice-row">🎲 🎲 🎲</div>
+    <div class="header-title">LUDO TOURNAMENT 2026</div>
+    <div class="header-sub">CHAMPIONSHIP BRACKET</div>
+    <div class="badge-row">
+      <span class="badge badge-green">16 PLAYERS</span>
+      <span class="badge badge-gold">500 PKR ENTRY</span>
+      <span class="badge badge-red">ENTRY CLOSED</span>
+    </div>
+    <div
+      style="margin-top:12px;font-size:10px;color:#ff3366;font-weight:800;letter-spacing:1px;background:rgba(255,51,102,0.1);padding:5px 10px;border-radius:4px;display:inline-block;border:1px solid #ff3366;">
+      ⚠️ UNOFFICIAL TOURNAMENT — NO COMPANY (SENARIOS) INVOLVEMENT
+    </div>
+  </div>
+
+  <div class="ticker-wrap">
+    <div class="ticker-content">
+      <div class="ticker-item"><span>🎬</span> ALL MEDIA COVERAGE WILL BE COVERED BY BILAL'S MEDIA GROUP</div>
+      <div class="ticker-item"><span>🎬</span> ALL MEDIA COVERAGE WILL BE COVERED BY BILAL'S MEDIA GROUP</div>
+      <div class="ticker-item"><span>🎬</span> ALL MEDIA COVERAGE WILL BE COVERED BY BILAL'S MEDIA GROUP</div>
+      <div class="ticker-item"><span>🎬</span> ALL MEDIA COVERAGE WILL BE COVERED BY BILAL'S MEDIA GROUP</div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <div class="nav-btn active" onclick="showTab('groups',event)">📋 GROUPS</div>
+    <div class="nav-btn" onclick="showTab('scoring',event)">🏆 SCORING</div>
+    <div class="nav-btn" onclick="showTab('knockout',event)">⚡ KNOCKOUT</div>
+    <div class="nav-btn" onclick="showTab('rules',event)">📜 RULES</div>
+    <div class="nav-btn" onclick="showTab('poster',event)">📣 POSTER</div>
+  </div>
+
+  <!-- GROUPS -->
+  <div id="groups" class="section active">
+    <div class="admin-bar" id="admin-bar-groups">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="sync-dot sync-online"></span>
+        <span style="font-size:11px;color:#aa88ff;">ADMIN MODE — MATCH RESULT BUTTONS VISIBLE</span>
+      </div>
+      <button class="admin-logout" onclick="logoutAdmin()">LOGOUT</button>
+    </div>
+    <div class="qualify-info">
+      <div class="qualify-title">🏆 QUALIFICATION RULE</div>
+      <div class="qualify-text">Top 8 players from 3 group stage rounds qualify for the Knockout Stage. Each match has 4
+        players — compete across all 3 rounds!</div>
+    </div>
+    <div id="rounds-content"></div>
+  </div>
+
+  <!-- SCORING -->
+  <div id="scoring" class="section">
+    <div class="admin-bar">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="sync-dot" id="sync-dot"></span>
+        <span style="font-size:11px;color:#aa88ff;" id="sync-text">Connected</span>
+        <span style="font-size:11px;color:#6666aa;margin-left:6px;">ADMIN MODE</span>
+      </div>
+      <button class="admin-logout" onclick="logoutAdmin()">LOGOUT</button>
+    </div>
+
+    <div class="rule-card">
+      <div class="qualify-title" style="margin-bottom:10px;">📊 POINT SYSTEM</div>
+      <div class="rule-item"><span class="rule-pos">1st Position</span><span class="rule-pts">6 pts</span></div>
+      <div class="rule-item"><span class="rule-pos">2nd Position</span><span class="rule-pts">4 pts</span></div>
+      <div class="rule-item"><span class="rule-pos">3rd Position</span><span class="rule-pts">2 pts</span></div>
+      <div class="rule-item"><span class="rule-pos">4th Position</span><span class="rule-pts">0 pts</span></div>
+    </div>
+
+    <div class="round-header">
+      <div class="round-title">🏆 LEADERBOARD</div>
+      <div class="round-line"></div>
+    </div>
+
+    <table class="leaderboard-table">
+      <thead>
+        <tr>
+          <th style="width:38px;">Rank</th>
+          <th>Player</th>
+          <th style="text-align:center;">M</th>
+          <th style="text-align:center;">1st</th>
+          <th style="text-align:center;">Pts</th>
+          <th style="text-align:center;" class="admin-score-row" id="admin-th-col">Edit</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-body"></tbody>
+    </table>
+  </div>
+
+  <!-- KNOCKOUT -->
+  <div id="knockout" class="section">
+    <div class="qualify-info">
+      <div class="qualify-title">⚡ KNOCKOUT FORMAT</div>
+      <div class="qualify-text">Top 8 qualify → Quarterfinals (1v8, 2v7, 3v6, 4v5) → Semifinals → Grand Final. One
+        champion takes the crown!</div>
+    </div>
+    <div class="ko-title">QUARTERFINALS</div>
+    <div class="qf-grid" id="qf-grid"></div>
+    <div class="ko-title">SEMIFINALS</div>
+    <div class="sf-grid" id="sf-grid"></div>
+    <div class="ko-title">GRAND FINAL</div>
+    <div class="final-grid" id="final-grid"></div>
+    <div class="trophy-row"><span class="trophy-icon">🏆</span>
+      <div class="trophy-text">WINNER TAKES BRAGGING RIGHTS 👑🎲</div>
+    </div>
+  </div>
+
+  <!-- RULES -->
+  <div id="rules" class="section">
+    <div class="qualify-info" style="border-color:#ff3366;background:rgba(255,0,50,0.05);">
+      <div class="qualify-title" style="color:#ff3366;">⚠️ IMPORTANT DISCLAIMER</div>
+      <div class="qualify-text" style="color:#ffcccc;font-weight:700;">Yeh ek unofficial tournament hai. Is tournament
+        ka Senarios ya kisi bhi company se koi talluq nahi hai.</div>
+    </div>
+    <div class="round-header">
+      <div class="round-title">📜 TOURNAMENT RULES (ROMAN URDU)</div>
+      <div class="round-line"></div>
+    </div>
+    <div class="rule-card" id="rules-list"></div>
+  </div>
+
+  <!-- POSTER -->
+  <div id="poster" class="section">
+    <div class="poster-wrap">
+      <div class="poster-glow"></div>
+      <span class="poster-dice">🎲</span>
+      <div class="poster-main-title">LUDO<br><span>TOURNAMENT</span><br>2026</div>
+      <div class="poster-tagline">CHAMPIONSHIP KNOCKOUT STAGE</div>
+      <div class="poster-stats">
+        <div class="stat-box">
+          <div class="stat-val">16</div>
+          <div class="stat-lbl">PLAYERS</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">500</div>
+          <div class="stat-lbl">PKR ENTRY</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">3</div>
+          <div class="stat-lbl">GROUP ROUNDS</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">TOP 8</div>
+          <div class="stat-lbl">QUALIFY</div>
+        </div>
+      </div>
+      <div class="poster-divider"></div>
+      <div class="poster-lines">
+        <div style="color:#44ff88;">✅ Groups are finalized</div>
+        <div style="color:#ffaa00;font-weight:800;">⚡ Let the games begin!</div>
+        <div style="color:#cc88ff;">👑 Winner takes bragging rights 🎲</div>
+        <br>
+        <div style="color:#8888cc;font-size:12px;">3 rounds of group play → QF → SF → Grand Final</div>
+      </div>
+      <div class="poster-footer">
+        <div class="poster-footer-text">🚫 ENTRY CLOSED</div>
+        <div class="poster-footer-sub">ENTRY FEE: 500 PKR — NON-NEGOTIABLE</div>
+      </div>
+      <div class="crown-row">👑 🎲 👑 🎲 👑</div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Login Modal -->
+<div class="modal-overlay" id="login-modal" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-content">
+    <div class="modal-title">🔐 ADMIN ACCESS</div>
+    <input type="password" id="admin-pass" class="admin-input" placeholder="Enter Admin Password"
+      onkeydown="if(event.key==='Enter')tryLogin()">
+    <button class="admin-submit" onclick="tryLogin()">LOGIN</button>
+    <div id="login-error" style="color:#ff3366;font-size:11px;margin-top:10px;text-align:center;display:none;">❌ Invalid
+      Password</div>
+  </div>
+</div>
+
+<!-- Match Result Modal (admin only, built in JS) -->
+<div class="result-modal" id="result-modal" onclick="if(event.target===this)this.style.display='none'">
+  <div class="result-modal-box">
+    <div class="result-modal-title" id="result-modal-title">RECORD MATCH RESULT</div>
+    <div id="result-selects"></div>
+    <button class="result-save-btn" onclick="saveMatchResult()">SAVE RESULT</button>
+    <button class="result-cancel-btn"
+      onclick="document.getElementById('result-modal').style.display='none'">Cancel</button>
+  </div>
+</div>
+
+<div class="admin-login-btn" id="admin-fab" onclick="adminFabClick()" title="Admin Login">🔑</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://gejpsmxmrsoumcryvobj.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_7-1o0I6hvhsSh4_B6ZEZqw_LtsCZUvL';
+
+  let _sb = null;
+  try {
+    if (typeof supabase !== 'undefined') {
+      _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+  } catch (e) { }
+
+  const ADMIN_PASS = 'admin2026';
+
+  const rounds = [
+    {
+      "name": "ROUND 1",
+      "slots": [
+        {
+          "label": "Slot 1",
+          "time": "2PM–3PM",
+          "matches": [
+            { "num": 1, "players": ["sanaullah", "ali_ijaz", "sharjeelahmed996", "abdullah-cheema"] },
+            { "num": 2, "players": ["shaina", "syedahsanali", "saadbintahir", "ahmad_raza"] }
+          ]
+        },
+        {
+          "label": "Slot 2",
+          "time": "8PM–9PM",
+          "matches": [
+            { "num": 3, "players": ["muhammadbilal", "Adnan Khalid", "omarzahid", "haris_athar"] },
+            { "num": 4, "players": ["sara.shahzad", "ahsan-ul-haq", "smmehdi", "kashmala.javaid"] },
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ROUND 2",
+      "slots": [
+        {
+          "label": "Slot 1",
+          "time": "2PM–3PM",
+          "matches": [
+            { "num": 5, "players": ["mahnoor_hasnain", "ahmad_raza", "Kashif", "sanaullah"] },
+            { "num": 6, "players": ["sharjeelahmed996", "ali_ijaz", "kashmala.javaid", "shaina"] }
+          ]
+        },
+        {
+          "label": "Slot 2",
+          "time": "8PM–9PM",
+          "matches": [
+            { "num": 7, "players": ["Fahad Zafar", "syedahsanali", "muhammadbilal", "sara.shahzad"] },
+            { "num": 8, "players": ["saadbintahir", "omarzahid", "smmehdi", "abdullah-cheema"] },
+            { "num": 15, "players": ["Adnan Khalid", "Abdullah", "haris_athar", "ahsan-ul-haq"] }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ROUND 3",
+      "slots": [
+        {
+          "label": "Slot 1",
+          "time": "2PM–3PM",
+          "matches": [
+            { "num": 9, "players": ["sanaullah", "sharjeelahmed996", "Adnan Khalid", "Fahad Zafar"] },
+            { "num": 10, "players": ["ali_ijaz", "abdullah-cheema", "Kashif", "Abdullah"] }
+          ]
+        },
+        {
+          "label": "Slot 2",
+          "time": "8PM–9PM",
+          "matches": [
+            { "num": 11, "players": ["shaina", "saadbintahir", "muhammadbilal", "sara.shahzad"] },
+            { "num": 12, "players": ["syedahsanali", "ahmad_raza", "mahnoor_hasnain", "haris_athar"] }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ROUND 4",
+      "slots": [
+        {
+          "label": "Slot 1",
+          "time": "2PM–3PM",
+          "matches": [
+            { "num": 13, "players": ["smmehdi", "kashmala.javaid", "Adnan Khalid", "sanaullah"] },
+            { "num": 14, "players": ["Fahad Zafar", "Kashif", "Abdullah", "ali_ijaz"] }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ROUND 5",
+      "slots": [
+
+        {
+          "label": "Slot 1",
+          "time": "2PM–3PM",
+          "matches": [
+            { "num": 15, "players": ["Adnan Khalid", "Fahad Zafar", "Kashif", "Abdullah"] }
+          ]
+        }
+      ]
+    },
+  ]
+
+  const allPlayers = [
+    "smmehdi", "muhammadbilal", "ali_ijaz", "mahnoor_hasnain", "sara.shahzad", "abdullah-cheema",
+    "shaina", "syedahsanali", "saadbintahir", "ahmad_raza",
+    "sharjeelahmed996", "haris_athar", "omarzahid", "ahsan-ul-haq", "sanaullah", "kashmala.javaid",
+    "Adnan Khalid", "Fahad Zafar", "Kashif", "Abdullah"
+  ];
+
+  let playerScores = {};
+  let matchResults = {};
+  let pendingMatchId = null;
+  let pendingPlayers = [];
+
+  const pClasses = ["p1", "p2", "p3", "p4"];
+  const placeColors = { '1st': '#ffaa00', '2nd': '#c0c0c0', '3rd': '#cd7f32', '4th': '#5555aa' };
+
+  function initPlayerScores() {
+    allPlayers.forEach(n => {
+      if (!playerScores[n]) playerScores[n] = { p1: 0, p2: 0, p3: 0, p4: 0 };
+    });
+  }
+
+  function calcPoints(s) { return s.p1 * 6 + s.p2 * 4 + s.p3 * 2; }
+  function calcMatches(s) { return s.p1 + s.p2 + s.p3 + s.p4; }
+
+  function setSyncStatus(type) {
+    const dot = document.getElementById('sync-dot');
+    const txt = document.getElementById('sync-text');
+    if (!dot) return;
+    dot.className = 'sync-dot ' + (type === 'online' ? 'sync-online' : type === 'saving' ? 'sync-saving' : 'sync-err');
+    txt.textContent = type === 'online' ? 'Connected' : type === 'saving' ? 'Saving...' : 'Error';
+  }
+
+  async function loadFromSupabase() {
+    if (!_sb) return;
+    try {
+      const { data: sc } = await _sb.from('ludo_scores').select('*');
+      if (sc) sc.forEach(r => {
+        if (allPlayers.includes(r.player_name)) {
+          playerScores[r.player_name] = { p1: r.p1 || 0, p2: r.p2 || 0, p3: r.p3 || 0, p4: r.p4 || 0 };
+        }
+      });
+      const { data: mr } = await _sb.from('ludo_match_results').select('*');
+      if (mr) mr.forEach(r => { matchResults[r.match_id] = r.rankings; });
+      setSyncStatus('online');
+    } catch (e) { setSyncStatus('err'); }
+  }
+
+  async function saveScoreToDb(name) {
+    if (!_sb) return;
+    setSyncStatus('saving');
+    const s = playerScores[name];
+    const { error } = await _sb.from('ludo_scores').upsert({ player_name: name, p1: s.p1, p2: s.p2, p3: s.p3, p4: s.p4 }, { onConflict: 'player_name' });
+    setSyncStatus(error ? 'err' : 'online');
+  }
+
+  async function saveMatchResultToDb(matchId, rankings) {
+    if (!_sb) return;
+    await _sb.from('ludo_match_results').upsert({ match_id: matchId, rankings }, { onConflict: 'match_id' });
+  }
+
+  // FIX 2: Result button only shown to admins (via CSS + only rendered when is-admin)
+  function renderGroups() {
+    const isAdmin = document.body.classList.contains('is-admin');
+    const container = document.getElementById('rounds-content');
+    if (!container) return;
+    let html = '';
+    rounds.forEach(round => {
+      html += `<div class="round-header"><div class="round-title">🔹 ${round.name}</div><div class="round-line"></div></div>`;
+      round.slots.forEach(slot => {
+        html += `<div class="slot-label">🕐 ${slot.label} <span style="color:#aa88ff;margin-left:5px;">(${slot.time})</span></div><div class="matches-grid">`;
+        slot.matches.forEach(match => {
+          const mid = `${round.name}-${slot.label}-M${match.num}`.replace(/\s+/g, '');
+          const result = matchResults[mid];
+          html += `<div class="match-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div class="match-num">MATCH ${match.num}</div>
+            ${isAdmin ? `<button class="result-btn" onclick="openResultModal('${mid}', ${JSON.stringify(match.players).replace(/"/g, '&quot;')})" title="Record Result">🏆</button>` : ''}
+          </div>
+          <div class="players-grid">`;
+          match.players.forEach((p, i) => {
+            let badge = '';
+            if (result) {
+              const pos = Object.entries(result).find(([, v]) => v === p);
+              if (pos) badge = `<span style="color:${placeColors[pos[0]]};font-size:9px;margin-left:auto;">${pos[0]}</span>`;
+            }
+            html += `<div class="player-chip ${pClasses[i]}">${p}${badge}</div>`;
+          });
+          html += `</div></div>`;
+        });
+        html += `</div>`;
+      });
+    });
+    container.innerHTML = html;
+  }
+
+  function renderLeaderboard() {
+    const isAdmin = document.body.classList.contains('is-admin');
+    const list = allPlayers.map(n => ({ name: n, ...playerScores[n] }));
+    list.sort((a, b) => calcPoints(b) - calcPoints(a) || b.p1 - a.p1);
+
+    // Show/hide admin edit column header
+    const adminTh = document.getElementById('admin-th-col');
+    if (adminTh) adminTh.style.display = isAdmin ? 'table-cell' : 'none';
+
+    const body = document.getElementById('leaderboard-body');
+    if (!body) return;
+    body.innerHTML = list.map((p, i) => {
+      const pts = calcPoints(p), m = calcMatches(p);
+      const allRoundsComplete = m >= 3;
+      const qualBadge = allRoundsComplete
+        ? (i < 8
+          ? `<span class="qualify-badge q-yes">Q</span>`
+          : `<span class="qualify-badge q-no">✗</span>`)
+        : '';
+      const editBtns = isAdmin ? `
+      <td style="text-align:center;white-space:nowrap;">
+        <button class="score-ctrl" onclick="adjScore('${p.name}','p1',1)" title="+1st">1↑</button>
+        <button class="score-ctrl" onclick="adjScore('${p.name}','p2',1)" title="+2nd">2↑</button>
+        <button class="score-ctrl" onclick="adjScore('${p.name}','p3',1)" title="+3rd">3↑</button>
+        <button class="score-ctrl" onclick="adjScore('${p.name}','p1',-1)" style="background:#3a1a1a;" title="-1st">1↓</button>
+      </td>` : '';
+      return `<tr>
+      <td><div class="rank-badge ${i < 3 ? 'rank-' + (i + 1) : ''}">${i + 1}</div></td>
+      <td style="font-weight:600;">${p.name}${qualBadge}</td>
+      <td style="text-align:center;color:#5555aa;">${m}</td>
+      <td style="text-align:center;color:#ffaa00;">${p.p1}</td>
+      <td style="text-align:center;"><span class="points-val">${pts}</span></td>
+      ${editBtns}
+    </tr>`;
+    }).join('');
+  }
+
+  async function adjScore(name, pos, delta) {
+    if (!document.body.classList.contains('is-admin')) return;
+    playerScores[name][pos] = Math.max(0, (playerScores[name][pos] || 0) + delta);
+    await saveScoreToDb(name);
+    renderAll();
+  }
+
+  // Result Modal
+  function openResultModal(matchId, players) {
+    if (!document.body.classList.contains('is-admin')) return;
+    pendingMatchId = matchId;
+    pendingPlayers = players;
+    document.getElementById('result-modal-title').textContent = 'RECORD: ' + matchId.replace(/-/g, ' ');
+    const places = ['1st', '2nd', '3rd', '4th'];
+    const existing = matchResults[matchId] || {};
+    let html = places.map((pl, pi) => {
+      const opts = players.map(p => `<option value="${p}" ${existing[pl] === p ? 'selected' : ''}>${p}</option>`).join('');
+      return `<div class="result-place-row">
+      <span class="result-place-lbl" style="color:${placeColors[pl]};">${pl}</span>
+      <select class="result-select" id="sel-${pi}">${opts}</select>
+    </div>`;
+    }).join('');
+    document.getElementById('result-selects').innerHTML = html;
+    document.getElementById('result-modal').style.display = 'flex';
+  }
+
+  async function saveMatchResult() {
+    const places = ['1st', '2nd', '3rd', '4th'];
+    const rankings = {};
+    const chosen = [];
+    for (let i = 0; i < 4; i++) {
+      const v = document.getElementById('sel-' + i).value;
+      if (chosen.includes(v)) { alert('Each player can only be in one position!'); return; }
+      chosen.push(v);
+      rankings[places[i]] = v;
+    }
+    matchResults[pendingMatchId] = rankings;
+    document.getElementById('result-modal').style.display = 'none';
+
+    // Update aggregate scores
+    const posMap = { '1st': 'p1', '2nd': 'p2', '3rd': 'p3', '4th': 'p4' };
+    // Reset contributions from previous result for this match if any
+    // Simple approach: just upsert all 4 player scores
+    for (const [place, pname] of Object.entries(rankings)) {
+      playerScores[pname][posMap[place]] = (playerScores[pname][posMap[place]] || 0) + 1;
+      await saveScoreToDb(pname);
+    }
+    await saveMatchResultToDb(pendingMatchId, rankings);
+    setSyncStatus('online');
+    renderAll();
+  }
+
+  function renderKnockout() {
+    const list = allPlayers.map(n => ({ name: n, pts: calcPoints(playerScores[n]), p1: (playerScores[n] || {}).p1 || 0, m: calcMatches(playerScores[n]) }));
+    list.sort((a, b) => b.pts - a.pts || b.p1 - a.p1);
+    const rn = i => (list[i] && list[i].m > 0) ? list[i].name : `Rank ${i + 1}`;
+    const isTbd = s => s.startsWith('Rank');
+
+    const qf = [
+      { label: 'QF1', p1: rn(0), p2: rn(7) },
+      { label: 'QF2', p1: rn(1), p2: rn(6) },
+      { label: 'QF3', p1: rn(2), p2: rn(5) },
+      { label: 'QF4', p1: rn(3), p2: rn(4) }
+    ];
+
+    document.getElementById('qf-grid').innerHTML = qf.map(m => `
+    <div class="bracket-match">
+      <div style="padding:5px 10px;font-size:9px;color:#6600ff;font-weight:800;letter-spacing:1px;background:#0a0a20;">${m.label}</div>
+      <div class="bracket-player ${isTbd(m.p1) ? 'tbd' : ''}"><span class="dot" style="background:#ff3366;"></span>${m.p1}</div>
+      <div class="bracket-player ${isTbd(m.p2) ? 'tbd' : ''}"><span class="dot" style="background:#3388ff;"></span>${m.p2}</div>
+    </div>`).join('');
+
+    document.getElementById('sf-grid').innerHTML = [
+      { label: 'SF1', p1: 'Winner QF1', p2: 'Winner QF4' },
+      { label: 'SF2', p1: 'Winner QF2', p2: 'Winner QF3' }
+    ].map(m => `
+    <div class="bracket-match">
+      <div style="padding:5px 10px;font-size:9px;color:#ffaa00;font-weight:800;letter-spacing:1px;background:#0a0a20;">${m.label}</div>
+      <div class="bracket-player tbd"><span class="dot" style="background:#ff3366;"></span>${m.p1}</div>
+      <div class="bracket-player tbd"><span class="dot" style="background:#3388ff;"></span>${m.p2}</div>
+    </div>`).join('');
+
+    document.getElementById('final-grid').innerHTML = `
+    <div class="bracket-match" style="border:2px solid #ffaa00;">
+      <div style="padding:5px 10px;font-size:9px;color:#ffaa00;font-weight:800;letter-spacing:1px;background:#1a1000;">🏆 GRAND FINAL</div>
+      <div class="bracket-player winner-slot tbd"><span class="dot" style="background:#ffaa00;"></span>Winner SF1</div>
+      <div class="bracket-player winner-slot tbd"><span class="dot" style="background:#ffdd44;"></span>Winner SF2</div>
+    </div>`;
+  }
+
+  function renderRules() {
+    const rules = [
+      { n: "1", emoji: "🎲", title: "Bari (Turn)", dispute: false, text: "Har player ki apni baari hogi. Sirf <b>6</b> aane par gotti yard se bahar niklegi. (2) 6 aane par ek <b>extra turn</b> milegi. Agar saari gottiyan bahar hain toh 6 normal move ki tarah count hoga." },
+      { n: "2", emoji: "🔄", title: "Double Bari (Bonus Turn)", dispute: false, text: "Dusre ki gotti kaatne par <b>ya</b> apni gotti exactly Home pohanchane par <b>ek extra baari</b> milegi." },
+      { n: "3", emoji: "🚫", title: "Zaya Bari (3 Sixes Skip)", dispute: false, text: "Agar lagatar <b>3 dafa 6</b> aaye toh teesri baari <b>zaya</b> ho jayegi — koi move nahi hoga aur aglay player ki baari shuru hogi." },
+      { n: "4", emoji: "🥷🏻", title: "Khoon ke baghair entry mana hai", dispute: false, text: "Jab tak gotti kisi opponent ko nahi kaategi, usay ghar mein entry nahi milegi." },
+      { n: "5", emoji: "⭐", title: "Safe Spots (Stars)", dispute: false, text: "Star wale boxes par gotti <b>safe</b> hoti hai — wahan koi kisi ki gotti nahi kaat sakta. Apna <b>starting box</b> (ghar ka darwaza) bhi safe zone hai." },
+      { n: "6", emoji: "🏠", title: "Home Column Rule", dispute: false, text: "Home column (rangeen raasta) mein <b>sirf usi color ki gottiyan</b> enter kar sakti hain. Doosre rang ki koi bhi gotti wahan nahi ja sakti aur na koi cutting hoti hai." },
+      { n: "7", emoji: "✂️", title: "Cutting Rule", dispute: false, text: "Opponent ki gotti kaatne par uski gotti <b>wapas yard</b> mein chali jayegi aur kaatne wale ko <b>extra turn</b> milega. Safe zones par cutting bilkul allowed nahi." },
+      { n: "8", emoji: "👟", title: "Joota Rule", dispute: false, text: "Agar ek hi box par <b>same color ki 2 ya zyada gottiyan</b> aa jayein toh Joota ban jata hai. Joota <b>kaatna allowed nahi</b> — koi bhi opponent us box ko cross nahi kar sakta. Joota Jootay ko kattay ga." },
+      { n: "9", emoji: "🎯", title: "Exact Home Entry", dispute: false, text: "Gotti Home mein daakhil karne ke liye <b>exact number</b> chahiye. Zyada number aane par gotti nahi chalegi aur woh wahan hi rukegi aglay turn tak." },
+      { n: "10", emoji: "🎲", title: "Single Active Gotti Rule", dispute: false, text: "Agar player ki <b>sirf 1 gotti active</b> ho or ghar my ho or (baqi sab Home pahunch chuki hon) toh usay turn <b>sirf 1 dice</b> use karna hoga." },
+      { n: "11", emoji: "🏆", title: "Game End & Positions", dispute: false, text: "Jis player ki <b>4 gottiyan sab se pehle Home</b> pahunchengi woh <b>1st</b> hoga. Baqi players apni gottiyan poori karte hain — <b>2nd, 3rd, 4th</b> positions bhi points ke liye record hongi." },
+      { n: "12", emoji: "📊", title: "Group Qualification", dispute: false, text: "3 rounds ke baad <b>Top 8 players</b> (highest points) Knockout Stage ke liye qualify karenge. Points barabar hone par <b>zyada 1st positions</b> wala aagay hoga." },
+      { n: "13", emoji: "🎰", title: "Dice Roll Validity", dispute: false, text: "Dice <b>flat surface par seedha girna</b> chahiye. Agar dice board se bahar gire toh woh roll <b>invalid</b> hogi." },
+      { n: "14", emoji: "⏱️", title: "No Delay Rule", dispute: false, text: "Har player ko apni turn <b>1 minute ke andar</b> complete karni hogi. Zyada time lene par referee turn skip kar sakta hai." },
+      { n: "15", emoji: "⚖️", title: "DISPUTE RULE", dispute: true, text: "Kisi bhi <b>dispute, argument ya unclear situation</b> mein <b>High Table ka decision FINAL aur BINDING</b> hoga. Koi bhi player High Table ke faislay ko challenge nahi kar sakta. Inkaar karne par player ko <b>tournament se disqualify</b> kiya ja sakta hai." },
+    ];
+
+    document.getElementById('rules-list').innerHTML = rules.map(r => {
+      if (r.dispute) {
+        return `
+      <div style="margin-bottom:6px;background:linear-gradient(135deg,rgba(255,51,102,0.1),rgba(180,0,50,0.06));border:2px solid #ff3366;border-radius:10px;padding:14px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff0033,#ff6600,#ff0033);"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap;">
+          <span style="font-size:16px;">${r.emoji}</span>
+          <span style="font-size:13px;font-weight:900;color:#ff3366;letter-spacing:1px;">Rule ${r.n}. ${r.title}</span>
+          <span style="font-size:9px;background:#ff003325;border:1px solid #ff3366;color:#ff6688;padding:2px 8px;border-radius:10px;font-weight:800;letter-spacing:1px;">⚠️ FINAL &amp; BINDING</span>
+        </div>
+        <div style="color:#ffcccc;font-size:12px;line-height:1.8;">${r.text}</div>
+      </div>`;
+      }
+      return `
+    <div style="margin-bottom:10px;padding:10px 12px;background:rgba(255,255,255,0.02);border:1px solid #2a2a4a;border-radius:8px;">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;">
+        <span style="font-size:14px;">${r.emoji}</span>
+        <span class="rule-pos" style="font-size:12px;">Rule ${r.n}. ${r.title}</span>
+      </div>
+      <div style="color:#ccccff;font-size:12px;line-height:1.7;padding-left:21px;">${r.text}</div>
+    </div>`;
+    }).join('');
+  }
+
+  function renderAll() {
+    renderGroups();
+    renderLeaderboard();
+    renderKnockout();
+  }
+
+  function adminFabClick() {
+    if (document.body.classList.contains('is-admin')) {
+      logoutAdmin();
+    } else {
+      openLogin();
+    }
+  }
+
+  // Admin auth
+  function openLogin() { document.getElementById('login-modal').style.display = 'flex'; }
+
+  function tryLogin() {
+    const pass = document.getElementById('admin-pass').value;
+    if (pass === ADMIN_PASS) {
+      document.getElementById('login-modal').style.display = 'none';
+      document.getElementById('login-error').style.display = 'none';
+      document.getElementById('admin-pass').value = '';
+      document.body.classList.add('is-admin');
+      document.getElementById('admin-fab').title = 'Admin Logout';
+      renderAll();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+    }
+  }
+
+  function logoutAdmin() {
+    document.body.classList.remove('is-admin');
+    document.getElementById('admin-fab').title = 'Admin Login';
+    renderAll();
+  }
+
+  function showTab(tab, e) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tab).classList.add('active');
+    if (e && e.target) e.target.classList.add('active');
+  }
+
+  // Init — admin state is in-memory only; always starts as guest on load/refresh
+  initPlayerScores();
+  renderRules();
+  loadFromSupabase().then(() => renderAll());
+
+  // Real-time sync
+  if (_sb) {
+    _sb.channel('rt-scores')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ludo_scores' }, () => loadFromSupabase().then(renderAll))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ludo_match_results' }, () => loadFromSupabase().then(renderAll))
+      .subscribe();
+  }
+</script>
