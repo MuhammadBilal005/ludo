@@ -1338,6 +1338,25 @@
     });
   }
 
+  function recalculateScoresFromResults() {
+    // 1. Reset all player scores to 0 to avoid partial increments
+    allPlayers.forEach(n => {
+      playerScores[n] = { p1: 0, p2: 0, p3: 0, p4: 0 };
+    });
+
+    // 2. Iterate through all matchResults and count positions
+    const posMap = { '1st': 'p1', '2nd': 'p2', '3rd': 'p3', '4th': 'p4' };
+    for (const mid in matchResults) {
+      const rankings = matchResults[mid];
+      if (!rankings) continue;
+      for (const [place, pname] of Object.entries(rankings)) {
+        if (playerScores[pname]) {
+          playerScores[pname][posMap[place]]++;
+        }
+      }
+    }
+  }
+
   function calcPoints(s) { return s.p1 * 6 + s.p2 * 4 + s.p3 * 2; }
   function calcMatches(s) { return s.p1 + s.p2 + s.p3 + s.p4; }
 
@@ -1352,16 +1371,32 @@
   async function loadFromSupabase() {
     if (!_sb) return;
     try {
-      const { data: sc } = await _sb.from('ludo_scores').select('*');
-      if (sc) sc.forEach(r => {
-        if (allPlayers.includes(r.player_name)) {
-          playerScores[r.player_name] = { p1: r.p1 || 0, p2: r.p2 || 0, p3: r.p3 || 0, p4: r.p4 || 0 };
-        }
-      });
+      // 1. Load match results (Ground Truth)
       const { data: mr } = await _sb.from('ludo_match_results').select('*');
-      if (mr) mr.forEach(r => { matchResults[r.match_id] = r.rankings; });
+      if (mr) {
+        mr.forEach(r => { matchResults[r.match_id] = r.rankings; });
+      }
+      
+      // 2. Load aggregate scores (Cache/Manual Adjustments)
+      const { data: sc } = await _sb.from('ludo_scores').select('*');
+      if (sc) {
+        sc.forEach(r => {
+          if (allPlayers.includes(r.player_name)) {
+            playerScores[r.player_name] = { p1: r.p1 || 0, p2: r.p2 || 0, p3: r.p3 || 0, p4: r.p4 || 0 };
+          }
+        });
+      }
+
+      // 3. Recalculate based on match results to ensure sync
+      // Note: This will overwrite manual overrides if they aren't also present in match_results.
+      // But it ensures that "Yesterday's" scores don't disappear if they exist in match_results.
+      recalculateScoresFromResults();
+
       setSyncStatus('online');
-    } catch (e) { setSyncStatus('err'); }
+    } catch (e) { 
+      console.error("Sync Error:", e);
+      setSyncStatus('err'); 
+    }
   }
 
   async function saveScoreToDb(name) {
@@ -1485,18 +1520,23 @@
       chosen.push(v);
       rankings[places[i]] = v;
     }
+    
+    // 1. Update local matchResults
     matchResults[pendingMatchId] = rankings;
-    document.getElementById('result-modal').style.display = 'none';
-
-    // Update aggregate scores
-    const posMap = { '1st': 'p1', '2nd': 'p2', '3rd': 'p3', '4th': 'p4' };
-    // Reset contributions from previous result for this match if any
-    // Simple approach: just upsert all 4 player scores
-    for (const [place, pname] of Object.entries(rankings)) {
-      playerScores[pname][posMap[place]] = (playerScores[pname][posMap[place]] || 0) + 1;
+    
+    // 2. Recalculate ALL scores from ALL results to ensure perfect sync
+    recalculateScoresFromResults();
+    
+    // 3. Save the match result itself
+    await saveMatchResultToDb(pendingMatchId, rankings);
+    
+    // 4. Update the ludo_scores table for players in this match
+    // We update only these 4 to save on DB calls, but they now have the correct RECALCULATED totals
+    for (const pname of chosen) {
       await saveScoreToDb(pname);
     }
-    await saveMatchResultToDb(pendingMatchId, rankings);
+    
+    document.getElementById('result-modal').style.display = 'none';
     setSyncStatus('online');
     renderAll();
   }
