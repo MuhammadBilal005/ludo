@@ -1261,9 +1261,8 @@
           "label": "Slot 2",
           "time": "8PM–9PM",
           "matches": [
-            { "num": 7, "players": ["Fahad Zafar", "syedahsanali", "muhammadbilal", "sara.shahzad"] },
+            { "num": 7, "players": ["ali_ijaz", "syedahsanali", "muhammadbilal", "sara.shahzad"] },
             { "num": 8, "players": ["saadbintahir", "omarzahid", "smmehdi", "abdullah-cheema"] },
-            { "num": 15, "players": ["Adnan Khalid", "Abdullah", "haris_athar", "ahsan-ul-haq"] }
           ]
         }
       ]
@@ -1275,8 +1274,9 @@
           "label": "Slot 1",
           "time": "2PM–3PM",
           "matches": [
+
             { "num": 9, "players": ["sanaullah", "sharjeelahmed996", "Adnan Khalid", "Fahad Zafar"] },
-            { "num": 10, "players": ["ali_ijaz", "abdullah-cheema", "Kashif", "Abdullah"] }
+            { "num": 10, "players": ["Fahad Zafar", "mahnoor_hasnain", "Kashif", "Abdullah"] }
           ]
         },
         {
@@ -1284,7 +1284,7 @@
           "time": "8PM–9PM",
           "matches": [
             { "num": 11, "players": ["shaina", "saadbintahir", "muhammadbilal", "sara.shahzad"] },
-            { "num": 12, "players": ["syedahsanali", "ahmad_raza", "mahnoor_hasnain", "haris_athar"] }
+            { "num": 12, "players": ["syedahsanali", "ahmad_raza", "abdullah-cheema", "haris_athar"] }
           ]
         }
       ]
@@ -1310,7 +1310,8 @@
           "label": "Slot 1",
           "time": "2PM–3PM",
           "matches": [
-            { "num": 15, "players": ["Adnan Khalid", "Fahad Zafar", "Kashif", "Abdullah"] }
+            { "num": 15, "players": ["Adnan Khalid", "Abdullah", "haris_athar", "ahsan-ul-haq"] }
+
           ]
         }
       ]
@@ -1376,7 +1377,7 @@
       if (mr) {
         mr.forEach(r => { matchResults[r.match_id] = r.rankings; });
       }
-      
+
       // 2. Load aggregate scores (Cache/Manual Adjustments)
       const { data: sc } = await _sb.from('ludo_scores').select('*');
       if (sc) {
@@ -1393,9 +1394,9 @@
       recalculateScoresFromResults();
 
       setSyncStatus('online');
-    } catch (e) { 
+    } catch (e) {
       console.error("Sync Error:", e);
-      setSyncStatus('err'); 
+      setSyncStatus('err');
     }
   }
 
@@ -1520,22 +1521,22 @@
       chosen.push(v);
       rankings[places[i]] = v;
     }
-    
+
     // 1. Update local matchResults
     matchResults[pendingMatchId] = rankings;
-    
+
     // 2. Recalculate ALL scores from ALL results to ensure perfect sync
     recalculateScoresFromResults();
-    
+
     // 3. Save the match result itself
     await saveMatchResultToDb(pendingMatchId, rankings);
-    
+
     // 4. Update the ludo_scores table for players in this match
     // We update only these 4 to save on DB calls, but they now have the correct RECALCULATED totals
     for (const pname of chosen) {
       await saveScoreToDb(pname);
     }
-    
+
     document.getElementById('result-modal').style.display = 'none';
     setSyncStatus('online');
     renderAll();
