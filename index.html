@@ -279,6 +279,53 @@
     box-shadow: 0 8px 25px rgba(102, 0, 255, 0.15);
   }
 
+  .match-card-prominent {
+    border: 3px solid #ffaa00 !important;
+    box-shadow: 0 0 40px rgba(255, 170, 0, 0.45) !important;
+    background: linear-gradient(135deg, rgba(255, 170, 0, 0.15), #1a1a40) !important;
+    transform: scale(1.02);
+  }
+
+  .match-card-completed {
+    border: 1.5px solid #00ff88 !important;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.15);
+  }
+
+  .match-card-completed::before {
+    background: linear-gradient(180deg, #00ff88, #00aa44) !important;
+  }
+
+  .match-card-prominent:hover {
+    transform: scale(1.04) translateY(-3px) !important;
+  }
+
+  .match-card-prominent::before {
+    background: linear-gradient(180deg, #ffaa00, #ff5500) !important;
+    width: 4px !important;
+  }
+
+  .featured-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: linear-gradient(90deg, #ffaa00, #ff5500);
+    color: #000;
+    font-size: 8px;
+    font-weight: 950;
+    padding: 3px 10px;
+    border-bottom-left-radius: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    box-shadow: 0 0 15px rgba(255, 170, 0, 0.4);
+    z-index: 5;
+    animation: pulseFeatured 2s infinite;
+  }
+
+  @keyframes pulseFeatured {
+    0%, 100% { box-shadow: 0 0 15px rgba(255, 170, 0, 0.4); }
+    50% { box-shadow: 0 0 25px rgba(255, 170, 0, 0.7); }
+  }
+
   .match-card::before {
     content: '';
     position: absolute;
@@ -1040,7 +1087,7 @@
 
   <div class="ticker-wrap">
     <div class="ticker-content">
-      <div class="ticker-item"><span>🎬</span> ALL MEDIA COVERAGE WILL BE COVERED BY BILAL'S MEDIA GROUP</div>
+      <div class="ticker-item" style="color:#ffaa00; font-weight:900;"><span>🔥</span> BIG MATCH ALERT: ROUND 4 SLOT 1 IS THE MAIN EVENT!</div>
       <div class="ticker-item"><span>🎬</span> ALL MEDIA COVERAGE WILL BE COVERED BY BILAL'S MEDIA GROUP</div>
       <div class="ticker-item"><span>🎬</span> ALL MEDIA COVERAGE WILL BE COVERED BY BILAL'S MEDIA GROUP</div>
       <div class="ticker-item"><span>🎬</span> ALL MEDIA COVERAGE WILL BE COVERED BY BILAL'S MEDIA GROUP</div>
@@ -1435,7 +1482,14 @@
         slot.matches.forEach(match => {
           const mid = `${round.name}-${slot.label}-M${match.num}`.replace(/\s+/g, '');
           const result = matchResults[mid];
-          html += `<div class="match-card">
+          const isFeatured = round.name === 'ROUND 4' && slot.label === 'Slot 1';
+          const isCompleted = !!result;
+          const prominentClass = isFeatured ? 'match-card-prominent' : '';
+          const completedClass = (isCompleted && !isFeatured) ? 'match-card-completed' : ''; // Featured stays golden
+          const featuredTag = isFeatured ? `<div class="featured-badge">🔥 MAIN EVENT</div>` : '';
+
+          html += `<div class="match-card ${prominentClass} ${completedClass}">
+          ${featuredTag}
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
             <div class="match-num">MATCH ${match.num}</div>
             ${isAdmin ? `<button class="result-btn" onclick="openResultModal('${mid}', ${JSON.stringify(match.players).replace(/"/g, '&quot;')})" title="Record Result">🏆</button>` : ''}
