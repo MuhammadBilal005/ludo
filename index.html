@@ -5,6 +5,11 @@
     padding: 0;
   }
 
+  @keyframes pulseRule {
+    0%, 100% { box-shadow: 0 0 15px rgba(255, 51, 102, 0.3); }
+    50% { box-shadow: 0 0 30px rgba(255, 51, 102, 0.7); }
+  }
+
   body {
     background: #0a0a1a;
   }
@@ -1124,6 +1129,8 @@
       <div class="qualify-text">Top 12 players from 3 group stage rounds qualify for the Knockout Stage. Each match has 4
         players — compete across all 3 rounds!</div>
     </div>
+
+    <div id="knockout-groups-container"></div>
     <div id="rounds-content"></div>
   </div>
 
@@ -1165,25 +1172,28 @@
       <tbody id="leaderboard-body"></tbody>
     </table>
   </div>
-
-  <!-- KNOCKOUT -->
+  
+  <!-- FINAL KNOCKOUT -->
   <div id="knockout" class="section">
-    <div class="qualify-info">
-      <div class="qualify-title">⚡ KNOCKOUT FORMAT</div>
-      <div class="qualify-text">Top 12 qualify → Knockout Rounds → Quarterfinals → Semifinals → Grand Final. One
-        champion takes the crown!</div>
+    <div class="admin-bar" id="admin-bar-knockout">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="sync-dot sync-online"></span>
+        <span style="font-size:11px;color:#aa88ff;">ADMIN MODE — FINAL STAGE</span>
+      </div>
+      <button class="admin-logout" onclick="logoutAdmin()">LOGOUT</button>
     </div>
-    <div class="ko-title">QUARTERFINALS</div>
-    <div class="qf-grid" id="qf-grid"></div>
-    <div class="ko-title">SEMIFINALS</div>
-    <div class="sf-grid" id="sf-grid"></div>
-    <div class="ko-title">GRAND FINAL</div>
-    <div class="final-grid" id="final-grid"></div>
-    <div class="trophy-row"><span class="trophy-icon">🏆</span>
-      <div class="trophy-text">WINNER TAKES BRAGGING RIGHTS 👑🎲</div>
+    
+    <div class="qualify-info" style="border-color:#ffaa00;">
+      <div class="qualify-title" style="color:#ffaa00;">⚡ THE FINALS</div>
+      <div class="qualify-text">
+        Top 2 from Group A and B qualify. Cross-match: A1 vs B2, B1 vs A2. 
+        <b>Single Elimination</b>: Winner advances to Grand Final. Loser is out.
+      </div>
     </div>
+    
+    <div id="final-knockout-content"></div>
   </div>
-
+  
   <!-- RULES -->
   <div id="rules" class="section">
     <div class="qualify-info" style="border-color:#ff3366;background:rgba(255,0,50,0.05);">
@@ -1389,6 +1399,16 @@
     "Adnan Khalid", "Fahad Zafar", "Kashif", "Abdullah"
   ];
 
+  const knockoutGroups = {
+    "Group A": ["syedahsanali", "Adnan Khalid", "Abdullah", "ali_ijaz", "abdullah-cheema", "mahnoor_hasnain"],
+    "Group B": ["muhammadbilal", "haris_athar", "Kashif", "smmehdi", "saadbintahir", "kashmala.javaid"]
+  };
+
+  const knockoutScheduleIndices = [
+    [0, 1, 2, 3], [0, 1, 4, 5], [2, 3, 4, 5],
+    [0, 2, 4, 5], [1, 3, 4, 5], [0, 1, 2, 3]
+  ];
+
   let playerScores = {};
   let matchResults = {};
   let pendingMatchId = null;
@@ -1410,16 +1430,17 @@
     });
 
     // 2. Iterate through all matchResults and count positions
-    const posMap = { '1st': 'p1', '2nd': 'p2', '3rd': 'p3', '4th': 'p4' };
-    for (const mid in matchResults) {
-      const rankings = matchResults[mid];
-      if (!rankings) continue;
-      for (const [place, pname] of Object.entries(rankings)) {
-        if (playerScores[pname]) {
-          playerScores[pname][posMap[place]]++;
+    Object.entries(matchResults).forEach(([mid, rankings]) => {
+      // Exclude Knockout/Final matches from main group stage leaderboard
+      if (mid.startsWith('KO-') || mid.startsWith('SF-') || mid.startsWith('GF-')) return;
+      
+      const posMap = { '1st': 'p1', '2nd': 'p2', '3rd': 'p3', '4th': 'p4' };
+      Object.entries(rankings).forEach(([place, name]) => {
+        if (playerScores[name]) {
+          playerScores[name][posMap[place]]++;
         }
-      }
-    }
+      });
+    });
   }
 
   function calcPoints(s) { return s.p1 * 6 + s.p2 * 4 + s.p3 * 2; }
@@ -1571,8 +1592,11 @@
     document.getElementById('result-modal-title').textContent = 'RECORD: ' + matchId.replace(/-/g, ' ');
     const places = ['1st', '2nd', '3rd', '4th'];
     const existing = matchResults[matchId] || {};
-    let html = places.map((pl, pi) => {
-      const opts = players.map(p => `<option value="${p}" ${existing[pl] === p ? 'selected' : ''}>${p}</option>`).join('');
+    
+    // Only show selects for the number of players in this match
+    let html = players.map((p, pi) => {
+      const pl = places[pi];
+      const opts = players.map(player => `<option value="${player}" ${existing[pl] === player ? 'selected' : ''}>${player}</option>`).join('');
       return `<div class="result-place-row">
       <span class="result-place-lbl" style="color:${placeColors[pl]};">${pl}</span>
       <select class="result-select" id="sel-${pi}">${opts}</select>
@@ -1586,7 +1610,9 @@
     const places = ['1st', '2nd', '3rd', '4th'];
     const rankings = {};
     const chosen = [];
-    for (let i = 0; i < 4; i++) {
+    const pCount = pendingPlayers.length;
+
+    for (let i = 0; i < pCount; i++) {
       const v = document.getElementById('sel-' + i).value;
       if (chosen.includes(v)) { alert('Each player can only be in one position!'); return; }
       chosen.push(v);
@@ -1613,43 +1639,199 @@
     renderAll();
   }
 
-  function renderKnockout() {
-    const list = allPlayers.map(n => ({ name: n, pts: calcPoints(playerScores[n]), p1: (playerScores[n] || {}).p1 || 0, m: calcMatches(playerScores[n]) }));
-    list.sort((a, b) => b.pts - a.pts || b.p1 - a.p1);
-    const rn = i => (list[i] && list[i].m > 0) ? list[i].name : `Rank ${i + 1}`;
-    const isTbd = s => s.startsWith('Rank');
+  function renderKnockoutGroups() {
+    const container = document.getElementById('knockout-groups-container');
+    if (!container) return;
+    const isAdmin = document.body.classList.contains('is-admin');
 
-    const qf = [
-      { label: 'QF1', p1: rn(0), p2: rn(7) },
-      { label: 'QF2', p1: rn(1), p2: rn(6) },
-      { label: 'QF3', p1: rn(2), p2: rn(5) },
-      { label: 'QF4', p1: rn(3), p2: rn(4) }
+    let html = '';
+    for (const [groupName, players] of Object.entries(knockoutGroups)) {
+      const groupKey = groupName.includes('A') ? 'A' : 'B';
+      const scores = {};
+      players.forEach(p => scores[p] = { p1: 0, p2: 0, p3: 0, p4: 0, m: 0 });
+
+      for (let mIdx = 1; mIdx <= 6; mIdx++) {
+        const mid = `KO-${groupKey}-M${mIdx}`;
+        const result = matchResults[mid];
+        if (result) {
+          const posMap = { '1st': 'p1', '2nd': 'p2', '3rd': 'p3', '4th': 'p4' };
+          for (const [place, pname] of Object.entries(result)) {
+            if (scores[pname]) {
+              scores[pname][posMap[place]]++;
+              scores[pname].m++;
+            }
+          }
+        }
+      }
+
+      const list = players.map(n => ({ name: n, ...scores[n] }));
+      list.sort((a, b) => calcPoints(b) - calcPoints(a) || b.p1 - a.p1);
+
+      html += `
+      <div class="round-header" style="margin-top:30px;">
+        <div class="round-title">${groupName.toUpperCase()} LEADERBOARD (KNOCKOUT)</div>
+        <div class="round-line"></div>
+      </div>
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th style="width:38px;">Rank</th>
+            <th>Player</th>
+            <th style="text-align:center;">M</th>
+            <th style="text-align:center;">1st</th>
+            <th style="text-align:center;">Pts</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${list.map((p, i) => `
+          <tr>
+            <td><div class="rank-badge ${i < 3 ? 'rank-' + (i + 1) : ''}">${i + 1}</div></td>
+            <td style="font-weight:600;">${p.name}</td>
+            <td style="text-align:center;color:#5555aa;">${p.m}</td>
+            <td style="text-align:center;color:#ffaa00;">${p.p1}</td>
+            <td style="text-align:center;"><span class="points-val">${calcPoints(p)}</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+
+      <div class="ko-title" style="margin-top:24px;">⚡ ${groupName.toUpperCase()} MATCHES</div>
+      <div class="matches-grid">`;
+
+      knockoutScheduleIndices.forEach((indices, mIdx) => {
+        const mNum = mIdx + 1;
+        const mid = `KO-${groupKey}-M${mNum}`;
+        const matchPlayers = indices.map(idx => players[idx]);
+        const result = matchResults[mid];
+        const isCompleted = !!result;
+
+        html += `
+        <div class="match-card ${isCompleted ? 'match-card-completed' : ''}">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div class="match-num">MATCH ${mNum}</div>
+            ${isAdmin ? `<button class="result-btn" onclick="openResultModal('${mid}', ${JSON.stringify(matchPlayers).replace(/"/g, '&quot;')})" title="Record Result">🏆</button>` : ''}
+          </div>
+          <div class="players-grid">`;
+        matchPlayers.forEach((p, i) => {
+          let badge = '';
+          if (result) {
+            const pos = Object.entries(result).find(([, v]) => v === p);
+            if (pos) badge = `<span style="color:${placeColors[pos[0]]};font-size:9px;margin-left:auto;">${pos[0]}</span>`;
+          }
+          html += `<div class="player-chip ${pClasses[i]}">${p}${badge}</div>`;
+        });
+        html += `</div></div>`;
+      });
+      html += `</div>`;
+    }
+    container.innerHTML = html;
+  }
+
+  function getGroupWinners(groupKey) {
+    const players = knockoutGroups[groupKey === 'A' ? 'Group A' : 'Group B'];
+    const scores = {};
+    players.forEach(p => scores[p] = { p1: 0, p2: 0, p3: 0, p4: 0, m: 0 });
+
+    for (let mIdx = 1; mIdx <= 6; mIdx++) {
+      const mid = `KO-${groupKey}-M${mIdx}`;
+      const result = matchResults[mid];
+      if (result) {
+        const posMap = { '1st': 'p1', '2nd': 'p2', '3rd': 'p3', '4th': 'p4' };
+        for (const [place, pname] of Object.entries(result)) {
+          if (scores[pname]) {
+            scores[pname][posMap[place]]++;
+            scores[pname].m++;
+          }
+        }
+      }
+    }
+    const list = players.map(n => ({ name: n, ...scores[n] }));
+    list.sort((a, b) => calcPoints(b) - calcPoints(a) || b.p1 - a.p1);
+    return list; // Returns sorted list, [0] is 1st, [1] is 2nd
+  }
+
+  function renderFinalKnockout() {
+    const container = document.getElementById('final-knockout-content');
+    if (!container) return;
+    const isAdmin = document.body.classList.contains('is-admin');
+
+    const standA = getGroupWinners('A');
+    const standB = getGroupWinners('B');
+
+    const sfMatches = [
+      { id: 'SF-1', title: 'SEMIFINAL 1', p1: standA[0].name, p2: standB[1].name, t1: 'Group A #1', t2: 'Group B #2' },
+      { id: 'SF-2', title: 'SEMIFINAL 2', p1: standB[0].name, p2: standA[1].name, t1: 'Group B #1', t2: 'Group A #2' }
     ];
 
-    document.getElementById('qf-grid').innerHTML = qf.map(m => `
-    <div class="bracket-match">
-      <div style="padding:5px 10px;font-size:9px;color:#6600ff;font-weight:800;letter-spacing:1px;background:#0a0a20;">${m.label}</div>
-      <div class="bracket-player ${isTbd(m.p1) ? 'tbd' : ''}"><span class="dot" style="background:#ff3366;"></span>${m.p1}</div>
-      <div class="bracket-player ${isTbd(m.p2) ? 'tbd' : ''}"><span class="dot" style="background:#3388ff;"></span>${m.p2}</div>
-    </div>`).join('');
+    let html = `<div class="ko-title" style="margin-top:20px;">🎖️ SEMIFINALS</div>
+                <div class="matches-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">`;
 
-    document.getElementById('sf-grid').innerHTML = [
-      { label: 'SF1', p1: 'Winner QF1', p2: 'Winner QF4' },
-      { label: 'SF2', p1: 'Winner QF2', p2: 'Winner QF3' }
-    ].map(m => `
-    <div class="bracket-match">
-      <div style="padding:5px 10px;font-size:9px;color:#ffaa00;font-weight:800;letter-spacing:1px;background:#0a0a20;">${m.label}</div>
-      <div class="bracket-player tbd"><span class="dot" style="background:#ff3366;"></span>${m.p1}</div>
-      <div class="bracket-player tbd"><span class="dot" style="background:#3388ff;"></span>${m.p2}</div>
-    </div>`).join('');
+    sfMatches.forEach(m => {
+      const result = matchResults[m.id];
+      const isCompleted = !!result;
+      const players = [m.p1, m.p2];
 
-    document.getElementById('final-grid').innerHTML = `
-    <div class="bracket-match" style="border:2px solid #ffaa00;">
-      <div style="padding:5px 10px;font-size:9px;color:#ffaa00;font-weight:800;letter-spacing:1px;background:#1a1000;">🏆 GRAND FINAL</div>
-      <div class="bracket-player winner-slot tbd"><span class="dot" style="background:#ffaa00;"></span>Winner SF1</div>
-      <div class="bracket-player winner-slot tbd"><span class="dot" style="background:#ffdd44;"></span>Winner SF2</div>
+      html += `
+      <div class="match-card ${isCompleted ? 'match-card-completed' : ''}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div class="match-num">${m.title}</div>
+          ${isAdmin ? `<button class="result-btn" onclick="openResultModal('${m.id}', ${JSON.stringify(players).replace(/"/g, '&quot;')})" title="Record Result">🏆</button>` : ''}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;">
+          <div style="text-align:center;">
+             <div style="font-size:10px;color:#888;margin-bottom:4px;">${m.t1}</div>
+             <div class="player-chip p1" style="justify-content:center;">${m.p1}</div>
+          </div>
+          <div style="font-weight:900;color:#ff3366;font-size:14px;">VS</div>
+          <div style="text-align:center;">
+             <div style="font-size:10px;color:#888;margin-bottom:4px;">${m.t2}</div>
+             <div class="player-chip p2" style="justify-content:center;">${m.p2}</div>
+          </div>
+        </div>
+        ${isCompleted ? `<div style="margin-top:10px;text-align:center;font-size:11px;color:#ffaa00;font-weight:800;">Winner: ${result['1st']}</div>` : ''}
+      </div>`;
+    });
+    html += `</div>`;
+
+    // Grand Final logic
+    const resSF1 = matchResults['SF-1'];
+    const resSF2 = matchResults['SF-2'];
+    const gfP1 = resSF1 ? resSF1['1st'] : 'Winner SF1';
+    const gfP2 = resSF2 ? resSF2['1st'] : 'Winner SF2';
+    const gfEnabled = resSF1 && resSF2;
+
+    html += `
+    <div class="round-header" style="margin-top:40px;">
+      <div class="round-title">👑 GRAND FINAL</div>
+      <div class="round-line"></div>
+    </div>
+    <div style="max-width:400px;margin:20px auto;">
+       <div class="match-card ${matchResults['GF-1'] ? 'match-card-completed' : ''}" style="border: 2px solid #ffaa00; background: linear-gradient(135deg, rgba(255,170,0,0.1), rgba(0,0,0,0.4));">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+            <div class="match-num" style="color:#ffaa00;font-weight:900;">CHAMPIONSHIP MATCH</div>
+            ${isAdmin && gfEnabled ? `<button class="result-btn" onclick="openResultModal('GF-1', ${JSON.stringify([gfP1, gfP2]).replace(/"/g, '&quot;')})" title="Record Result">🏆</button>` : ''}
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:15px;">
+            <div style="text-align:center;">
+               <div class="player-chip p1" style="justify-content:center;height:40px;font-size:14px;">${gfP1}</div>
+            </div>
+            <div style="font-weight:900;color:#ffaa00;font-size:20px;text-shadow: 0 0 10px rgba(255,170,0,0.5);">VS</div>
+            <div style="text-align:center;">
+               <div class="player-chip p2" style="justify-content:center;height:40px;font-size:14px;">${gfP2}</div>
+            </div>
+          </div>
+          ${matchResults['GF-1'] ? `
+            <div style="margin-top:20px;text-align:center;">
+              <div style="font-size:14px;color:#fff;font-weight:900;letter-spacing:1px;margin-bottom:5px;">🎊 CHAMPION 🎊</div>
+              <div style="font-size:22px;color:#ffaa00;font-weight:900;text-shadow: 0 0 20px rgba(255,170,0,0.8);">${matchResults['GF-1']['1st']}</div>
+            </div>
+          ` : ''}
+       </div>
     </div>`;
+
+    container.innerHTML = html;
   }
+
+  // renderKnockout function removed as logic moved to renderKnockoutGroups
 
   function renderRules() {
     const rules = [
@@ -1668,17 +1850,19 @@
       { n: "13", emoji: "🎰", title: "Dice Roll Validity", dispute: false, text: "Dice <b>flat surface par seedha girna</b> chahiye. Agar dice board se bahar gire toh woh roll <b>invalid</b> hogi." },
       { n: "14", emoji: "⏱️", title: "No Delay Rule", dispute: false, text: "Har player ko apni turn <b>1 minute ke andar</b> complete karni hogi. Zyada time lene par referee turn skip kar sakta hai." },
       { n: "15", emoji: "⚖️", title: "DISPUTE RULE", dispute: true, text: "Kisi bhi <b>dispute, argument ya unclear situation</b> mein <b>High Table ka decision FINAL aur BINDING</b> hoga. Koi bhi player High Table ke faislay ko challenge nahi kar sakta. Inkaar karne par player ko <b>tournament se disqualify</b> kiya ja sakta hai." },
+      { n: "16", emoji: "🤫", title: "SPECTATOR RULE", dispute: true, highlight: true, text: "Match ke dauran koi bhi spectator player ko <b>suggestion, coaching ya ishara</b> nahi kar sakta. Suggestion dainay wale ko <b>usi waqt premises se nikaal diya jayegi</b> aur woh sirf <b>us match ke liye</b> allow nahi hoga. Is rule ki khilaf-warzi par sakht action liya jayega." },
     ];
 
     document.getElementById('rules-list').innerHTML = rules.map(r => {
       if (r.dispute) {
+        const glow = r.highlight ? 'box-shadow: 0 0 20px rgba(255,51,102,0.6); animation: pulseRule 2s infinite;' : '';
         return `
-      <div style="margin-bottom:6px;background:linear-gradient(135deg,rgba(255,51,102,0.1),rgba(180,0,50,0.06));border:2px solid #ff3366;border-radius:10px;padding:14px;position:relative;overflow:hidden;">
+      <div style="margin-bottom:6px;background:linear-gradient(135deg,rgba(255,51,102,0.1),rgba(180,0,50,0.06));border:2px solid #ff3366;border-radius:10px;padding:14px;position:relative;overflow:hidden; ${glow}">
         <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff0033,#ff6600,#ff0033);"></div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap;">
           <span style="font-size:16px;">${r.emoji}</span>
           <span style="font-size:13px;font-weight:900;color:#ff3366;letter-spacing:1px;">Rule ${r.n}. ${r.title}</span>
-          <span style="font-size:9px;background:#ff003325;border:1px solid #ff3366;color:#ff6688;padding:2px 8px;border-radius:10px;font-weight:800;letter-spacing:1px;">⚠️ FINAL &amp; BINDING</span>
+          ${r.highlight ? '<span style="font-size:9px;background:#ffaa00;color:#000;padding:2px 8px;border-radius:10px;font-weight:900;letter-spacing:1px;animation: pulse 1s infinite alternate;">⚠️ NEW & MANDATORY</span>' : '<span style="font-size:9px;background:#ff003325;border:1px solid #ff3366;color:#ff6688;padding:2px 8px;border-radius:10px;font-weight:800;letter-spacing:1px;">⚠️ FINAL &amp; BINDING</span>'}
         </div>
         <div style="color:#ffcccc;font-size:12px;line-height:1.8;">${r.text}</div>
       </div>`;
@@ -1696,8 +1880,9 @@
 
   function renderAll() {
     renderGroups();
+    renderKnockoutGroups();
     renderLeaderboard();
-    renderKnockout();
+    renderFinalKnockout();
   }
 
   function adminFabClick() {
