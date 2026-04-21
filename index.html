@@ -1757,9 +1757,27 @@
     const standA = getGroupWinners('A');
     const standB = getGroupWinners('B');
 
+    // Check if group knockout is complete (all 6 matches recorded)
+    const isGroupAComplete = Object.keys(matchResults).filter(k => k.startsWith('KO-A-')).length >= 6;
+    const isGroupBComplete = Object.keys(matchResults).filter(k => k.startsWith('KO-B-')).length >= 6;
+
     const sfMatches = [
-      { id: 'SF-1', title: 'SEMIFINAL 1', p1: standA[0].name, p2: standB[1].name, t1: 'Group A #1', t2: 'Group B #2' },
-      { id: 'SF-2', title: 'SEMIFINAL 2', p1: standB[0].name, p2: standA[1].name, t1: 'Group B #1', t2: 'Group A #2' }
+      { 
+        id: 'SF-1', 
+        title: 'SEMIFINAL 1', 
+        p1: isGroupAComplete ? standA[0].name : `TBD (Group A #1)`, 
+        p2: isGroupBComplete ? standB[1].name : `TBD (Group B #2)`, 
+        t1: 'Group A #1', t2: 'Group B #2',
+        ready: isGroupAComplete && isGroupBComplete
+      },
+      { 
+        id: 'SF-2', 
+        title: 'SEMIFINAL 2', 
+        p1: isGroupBComplete ? standB[0].name : `TBD (Group B #1)`, 
+        p2: isGroupAComplete ? standA[1].name : `TBD (Group A #2)`, 
+        t1: 'Group B #1', t2: 'Group A #2',
+        ready: isGroupAComplete && isGroupBComplete
+      }
     ];
 
     let html = `<div class="ko-title" style="margin-top:20px;">🎖️ SEMIFINALS</div>
@@ -1774,17 +1792,17 @@
       <div class="match-card ${isCompleted ? 'match-card-completed' : ''}">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <div class="match-num">${m.title}</div>
-          ${isAdmin ? `<button class="result-btn" onclick="openResultModal('${m.id}', ${JSON.stringify(players).replace(/"/g, '&quot;')})" title="Record Result">🏆</button>` : ''}
+          ${isAdmin && m.ready ? `<button class="result-btn" onclick="openResultModal('${m.id}', ${JSON.stringify(players).replace(/"/g, '&quot;')})" title="Record Result">🏆</button>` : ''}
         </div>
         <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;">
           <div style="text-align:center;">
              <div style="font-size:10px;color:#888;margin-bottom:4px;">${m.t1}</div>
-             <div class="player-chip p1" style="justify-content:center;">${m.p1}</div>
+             <div class="player-chip ${m.ready ? 'p1' : ''}" style="justify-content:center; ${!m.ready ? 'opacity:0.5;background:rgba(255,255,255,0.05);' : ''}">${m.p1}</div>
           </div>
           <div style="font-weight:900;color:#ff3366;font-size:14px;">VS</div>
           <div style="text-align:center;">
              <div style="font-size:10px;color:#888;margin-bottom:4px;">${m.t2}</div>
-             <div class="player-chip p2" style="justify-content:center;">${m.p2}</div>
+             <div class="player-chip ${m.ready ? 'p2' : ''}" style="justify-content:center; ${!m.ready ? 'opacity:0.5;background:rgba(255,255,255,0.05);' : ''}">${m.p2}</div>
           </div>
         </div>
         ${isCompleted ? `<div style="margin-top:10px;text-align:center;font-size:11px;color:#ffaa00;font-weight:800;">Winner: ${result['1st']}</div>` : ''}
