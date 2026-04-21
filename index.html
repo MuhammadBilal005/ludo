@@ -1121,7 +1121,7 @@
     </div>
     <div class="qualify-info">
       <div class="qualify-title">🏆 QUALIFICATION RULE</div>
-      <div class="qualify-text">Top 8 players from 3 group stage rounds qualify for the Knockout Stage. Each match has 4
+      <div class="qualify-text">Top 12 players from 3 group stage rounds qualify for the Knockout Stage. Each match has 4
         players — compete across all 3 rounds!</div>
     </div>
     <div id="rounds-content"></div>
@@ -1170,7 +1170,7 @@
   <div id="knockout" class="section">
     <div class="qualify-info">
       <div class="qualify-title">⚡ KNOCKOUT FORMAT</div>
-      <div class="qualify-text">Top 8 qualify → Quarterfinals (1v8, 2v7, 3v6, 4v5) → Semifinals → Grand Final. One
+      <div class="qualify-text">Top 12 qualify → Knockout Rounds → Quarterfinals → Semifinals → Grand Final. One
         champion takes the crown!</div>
     </div>
     <div class="ko-title">QUARTERFINALS</div>
@@ -1219,7 +1219,7 @@
           <div class="stat-lbl">GROUP ROUNDS</div>
         </div>
         <div class="stat-box">
-          <div class="stat-val">TOP 8</div>
+          <div class="stat-val">TOP 12</div>
           <div class="stat-lbl">QUALIFY</div>
         </div>
       </div>
@@ -1534,7 +1534,7 @@
       const pts = calcPoints(p), m = calcMatches(p);
       const allRoundsComplete = m >= 3;
       const qualBadge = allRoundsComplete
-        ? (i < 8
+        ? (i < 12
           ? `<span class="qualify-badge q-yes">Q</span>`
           : `<span class="qualify-badge q-no">✗</span>`)
         : '';
@@ -1664,7 +1664,7 @@
       { n: "9", emoji: "🎯", title: "Exact Home Entry", dispute: false, text: "Gotti Home mein daakhil karne ke liye <b>exact number</b> chahiye. Zyada number aane par gotti nahi chalegi aur woh wahan hi rukegi aglay turn tak." },
       { n: "10", emoji: "🎲", title: "Single Active Gotti Rule", dispute: false, text: "Agar player ki <b>sirf 1 gotti active</b> ho or ghar my ho or (baqi sab Home pahunch chuki hon) toh usay turn <b>sirf 1 dice</b> use karna hoga." },
       { n: "11", emoji: "🏆", title: "Game End & Positions", dispute: false, text: "Jis player ki <b>4 gottiyan sab se pehle Home</b> pahunchengi woh <b>1st</b> hoga. Baqi players apni gottiyan poori karte hain — <b>2nd, 3rd, 4th</b> positions bhi points ke liye record hongi." },
-      { n: "12", emoji: "📊", title: "Group Qualification", dispute: false, text: "3 rounds ke baad <b>Top 8 players</b> (highest points) Knockout Stage ke liye qualify karenge. Points barabar hone par <b>zyada 1st positions</b> wala aagay hoga." },
+      { n: "12", emoji: "📊", title: "Group Qualification", dispute: false, text: "3 rounds ke baad <b>Top 12 players</b> (highest points) Knockout Stage ke liye qualify karenge. Points barabar hone par <b>zyada 1st positions</b> wala aagay hoga." },
       { n: "13", emoji: "🎰", title: "Dice Roll Validity", dispute: false, text: "Dice <b>flat surface par seedha girna</b> chahiye. Agar dice board se bahar gire toh woh roll <b>invalid</b> hogi." },
       { n: "14", emoji: "⏱️", title: "No Delay Rule", dispute: false, text: "Har player ko apni turn <b>1 minute ke andar</b> complete karni hogi. Zyada time lene par referee turn skip kar sakta hai." },
       { n: "15", emoji: "⚖️", title: "DISPUTE RULE", dispute: true, text: "Kisi bhi <b>dispute, argument ya unclear situation</b> mein <b>High Table ka decision FINAL aur BINDING</b> hoga. Koi bhi player High Table ke faislay ko challenge nahi kar sakta. Inkaar karne par player ko <b>tournament se disqualify</b> kiya ja sakta hai." },
