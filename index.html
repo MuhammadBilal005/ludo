@@ -6,8 +6,15 @@
   }
 
   @keyframes pulseRule {
-    0%, 100% { box-shadow: 0 0 15px rgba(255, 51, 102, 0.3); }
-    50% { box-shadow: 0 0 30px rgba(255, 51, 102, 0.7); }
+
+    0%,
+    100% {
+      box-shadow: 0 0 15px rgba(255, 51, 102, 0.3);
+    }
+
+    50% {
+      box-shadow: 0 0 30px rgba(255, 51, 102, 0.7);
+    }
   }
 
   body {
@@ -1126,7 +1133,8 @@
     </div>
     <div class="qualify-info">
       <div class="qualify-title">🏆 QUALIFICATION RULE</div>
-      <div class="qualify-text">Top 12 players from 3 group stage rounds qualify for the Knockout Stage. Each match has 4
+      <div class="qualify-text">Top 12 players from 3 group stage rounds qualify for the Knockout Stage. Each match has
+        4
         players — compete across all 3 rounds!</div>
     </div>
 
@@ -1172,7 +1180,7 @@
       <tbody id="leaderboard-body"></tbody>
     </table>
   </div>
-  
+
   <!-- FINAL KNOCKOUT -->
   <div id="knockout" class="section">
     <div class="admin-bar" id="admin-bar-knockout">
@@ -1182,18 +1190,18 @@
       </div>
       <button class="admin-logout" onclick="logoutAdmin()">LOGOUT</button>
     </div>
-    
+
     <div class="qualify-info" style="border-color:#ffaa00;">
       <div class="qualify-title" style="color:#ffaa00;">⚡ THE FINALS</div>
       <div class="qualify-text">
-        Top 2 from Group A and B qualify. Cross-match: A1 vs B2, B1 vs A2. 
+        Top 2 from Group A and B qualify. Cross-match: A1 vs B2, B1 vs A2.
         <b>Single Elimination</b>: Winner advances to Grand Final. Loser is out.
       </div>
     </div>
-    
+
     <div id="final-knockout-content"></div>
   </div>
-  
+
   <!-- RULES -->
   <div id="rules" class="section">
     <div class="qualify-info" style="border-color:#ff3366;background:rgba(255,0,50,0.05);">
@@ -1400,8 +1408,8 @@
   ];
 
   const knockoutGroups = {
-    "Group A": ["syedahsanali", "Adnan Khalid", "Abdullah", "ali_ijaz", "abdullah-cheema", "mahnoor_hasnain"],
-    "Group B": ["muhammadbilal", "haris_athar", "Kashif", "smmehdi", "saadbintahir", "kashmala.javaid"]
+    "Group A": ["syedahsanali", "Adnan Khalid", "Abdullah", "saadbintahir", "abdullah-cheema", "ali_ijaz"],
+    "Group B": ["muhammadbilal", "haris_athar", "Kashif", "smmehdi", "mahnoor_hasnain", "kashmala.javaid"]
   };
 
   const knockoutScheduleIndices = [
@@ -1433,7 +1441,7 @@
     Object.entries(matchResults).forEach(([mid, rankings]) => {
       // Exclude Knockout/Final matches from main group stage leaderboard
       if (mid.startsWith('KO-') || mid.startsWith('SF-') || mid.startsWith('GF-')) return;
-      
+
       const posMap = { '1st': 'p1', '2nd': 'p2', '3rd': 'p3', '4th': 'p4' };
       Object.entries(rankings).forEach(([place, name]) => {
         if (playerScores[name]) {
@@ -1592,7 +1600,7 @@
     document.getElementById('result-modal-title').textContent = 'RECORD: ' + matchId.replace(/-/g, ' ');
     const places = ['1st', '2nd', '3rd', '4th'];
     const existing = matchResults[matchId] || {};
-    
+
     // Only show selects for the number of players in this match
     let html = players.map((p, pi) => {
       const pl = places[pi];
@@ -1762,19 +1770,19 @@
     const isGroupBComplete = Object.keys(matchResults).filter(k => k.startsWith('KO-B-')).length >= 6;
 
     const sfMatches = [
-      { 
-        id: 'SF-1', 
-        title: 'SEMIFINAL 1', 
-        p1: isGroupAComplete ? standA[0].name : `TBD (Group A #1)`, 
-        p2: isGroupBComplete ? standB[1].name : `TBD (Group B #2)`, 
+      {
+        id: 'SF-1',
+        title: 'SEMIFINAL 1',
+        p1: isGroupAComplete ? standA[0].name : `TBD (Group A #1)`,
+        p2: isGroupBComplete ? standB[1].name : `TBD (Group B #2)`,
         t1: 'Group A #1', t2: 'Group B #2',
         ready: isGroupAComplete && isGroupBComplete
       },
-      { 
-        id: 'SF-2', 
-        title: 'SEMIFINAL 2', 
-        p1: isGroupBComplete ? standB[0].name : `TBD (Group B #1)`, 
-        p2: isGroupAComplete ? standA[1].name : `TBD (Group A #2)`, 
+      {
+        id: 'SF-2',
+        title: 'SEMIFINAL 2',
+        p1: isGroupBComplete ? standB[0].name : `TBD (Group B #1)`,
+        p2: isGroupAComplete ? standA[1].name : `TBD (Group A #2)`,
         t1: 'Group B #1', t2: 'Group A #2',
         ready: isGroupAComplete && isGroupBComplete
       }
