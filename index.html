@@ -1138,7 +1138,6 @@
         players — compete across all 3 rounds!</div>
     </div>
 
-    <div id="knockout-groups-container"></div>
     <div id="rounds-content"></div>
   </div>
 
@@ -1192,13 +1191,15 @@
     </div>
 
     <div class="qualify-info" style="border-color:#ffaa00;">
-      <div class="qualify-title" style="color:#ffaa00;">⚡ TOP 8 KNOCKOUT</div>
+      <div class="qualify-title" style="color:#ffaa00;">⚡ KNOCKOUT PROGRESSION</div>
       <div class="qualify-text">
-        Two intense matches! Top 2 from each match will qualify for the <b>GRAND FINAL</b>.
-        Compete for the ultimate glory!
+        <b>Stage 1: Top 12</b> — Two groups of 6. Top 4 from each qualify for Top 8.<br>
+        <b>Stage 2: Top 8</b> — Two intense matches. Top 2 from each qualify for Final.<br>
+        <b>Stage 3: Grand Final</b> — The ultimate championship match!
       </div>
     </div>
 
+    <div id="knockout-groups-container"></div>
     <div id="final-knockout-content"></div>
   </div>
 
@@ -1225,20 +1226,20 @@
       <div class="poster-tagline">CHAMPIONSHIP KNOCKOUT STAGE</div>
       <div class="poster-stats">
         <div class="stat-box">
-          <div class="stat-val">8</div>
+          <div class="stat-val">16</div>
           <div class="stat-lbl">PLAYERS</div>
         </div>
         <div class="stat-box">
-          <div class="stat-val">500</div>
-          <div class="stat-lbl">PKR ENTRY</div>
+          <div class="stat-val">12</div>
+          <div class="stat-lbl">STAGE 1</div>
         </div>
         <div class="stat-box">
-          <div class="stat-val">2</div>
-          <div class="stat-lbl">KO MATCHES</div>
+          <div class="stat-val">8</div>
+          <div class="stat-lbl">STAGE 2</div>
         </div>
         <div class="stat-box">
-          <div class="stat-val">TOP 4</div>
-          <div class="stat-lbl">QUALIFY</div>
+          <div class="stat-val">4</div>
+          <div class="stat-lbl">FINAL</div>
         </div>
       </div>
       <div class="poster-divider"></div>
@@ -1247,7 +1248,7 @@
         <div style="color:#ffaa00;font-weight:800;">⚡ Let the games begin!</div>
         <div style="color:#cc88ff;">👑 Winner takes bragging rights 🎲</div>
         <br>
-        <div style="color:#8888cc;font-size:12px;">Group Stage → Top 8 Knockout → Grand Final</div>
+        <div style="color:#8888cc;font-size:12px;">Groups → Top 12 (Groups) → Top 8 (Knockout) → Grand Final</div>
       </div>
       <div class="poster-footer">
         <div class="poster-footer-text">🚫 ENTRY CLOSED</div>
@@ -1773,7 +1774,7 @@
     top8Matches.forEach(m => {
       const result = matchResults[m.id];
       const isCompleted = !!result;
-      
+
       html += `
       <div class="match-card ${isCompleted ? 'match-card-completed' : ''}">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -1796,7 +1797,7 @@
     // Finalists logic
     const resM1 = matchResults['T8-M1'];
     const resM2 = matchResults['T8-M2'];
-    
+
     const finalists = [];
     if (resM1) { finalists.push(resM1['1st'], resM1['2nd']); }
     if (resM2) { finalists.push(resM2['1st'], resM2['2nd']); }
@@ -1887,7 +1888,7 @@
 
   function renderAll() {
     renderGroups();
-    // renderKnockoutGroups(); // Obsolete
+    renderKnockoutGroups();
     renderLeaderboard();
     renderFinalKnockout();
   }
